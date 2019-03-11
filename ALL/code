@@ -1,0 +1,242 @@
+
+experiment_1:Gibb's phenomenon 
+code:1
+ t=-1.1:0.001:1.1;
+ T=1;
+ tau=0.2;
+ ft=tau/T;
+ n=100;
+ for i=1:n
+ft=ft+2*(tau/T)*sinc(i*tau/T)*cos(2*pi*i*t/T);
+end
+plot(t,ft)
+t=[-1.1 -1.1 -0.9 -0.9 0.5 -0.1 -0.1 0.1 0.1 0.5 0.9 0.9 1.1 1.1];
+ft=[0 1 1 0 0 0 1 1 0 0 0 1 1 0];
+hold on
+ plot(t,ft,'r')
+
+
+code:2
+  t=-0.5:0.001:1.5;
+  T=1;
+  C0=0.5;
+ n=10;
+ ft=C0;
+ for i=1:n
+ft=ft-2/(2*pi*i)*sin(2*pi*i*t/T);
+end
+ plot(t,ft)
+ xlabel('Time....');
+ ylabel('Amplitude');
+ title('Gibbs phenomenon for n=10');
+ hold on;
+ t=[-0.5 0 0 1 1 1.5];
+ ft=[0.5 1 0 1 0 0.5];
+ plot(t,ft,'r');
+ hold off;
+ grid on
+
+
+
+experiment_2:Simulation of binary data communication 
+
+M=200000;
+for k=1:8
+SNR=2+k*2;
+tx=randi(2,M,1)-1;
+rx=awgn(tx,SNR);
+e(k)=0;
+for i=1:M
+if tx(i)==1;
+if rx(i)<=0.5;
+e(k)=e(k)+1;
+end
+end
+if tx(i)==0;
+if rx(i)>=0.5;
+e(k)=e(k)+1;
+end
+end
+end
+end
+Pe=e/M;
+SNR=4:2:18;
+SNRa=10.^(SNR/10);
+Pet=qfunc(sqrt(SNRa/4));
+plot(SNR,Pe,'r>:',SNR,Pet,'b<:')
+title('Simulation of binary data communication')
+legend('Simulation','Theory')
+xlabel('SNR in db')
+ylabel('Probability Error')
+grid on
+
+
+
+
+experriment_3:Quantization technique of data signal
+
+
+p=[1.5,2.5,3.5];
+q=[1,2,3,4];
+s=[-2.7,-1.6,-1.2,1.9,2,3.5,4.2];
+[I,Q]=quantiz(s,p,q);
+stem(s)
+hold on
+stem(Q,'>b')
+grid on
+dec2bin(Q)
+xlabel('Time')
+ylabel('Amplitude')
+
+
+
+t=0:0.01:2*pi;
+s=4*sin(pi*t);
+p=[-3,-2,-1,0,1,2,2.5,3.2];
+q=[-3.5,-3,-2,-1,0,1,2,3,3.5];
+[I,Q]=quantiz(s,p,q);
+plot(t,s,'b',t,Q,'*r')
+Er=s-Q;
+figure
+plot(t,Er)
+plot(t,Er,'g')
+xlabel('Time')
+ylabel('Error')
+
+
+Emax=max(abs(Q-s))
+
+
+
+experiment_6:Delta Modulation
+
+#1
+predictor=[0 1];
+partion=[-1:0.1:0.9];
+codebook=[-1:0.1:1];
+t=0:pi/100:2*pi;
+x=sin(pi*t);
+encodedx=dpcmenco(x,codebook,partion,predictor);
+decodedx=dpcmdeco(encodedx,codebook,predictor);
+plot(t,x,'r',t,decodedx,'k--')
+legend('Original','Recovered')
+grid on
+xlabel('time')
+ylabel('Original and Recovered Signal')
+emax=max(abs(abs(x)-abs(decodedx)))
+SNR=20*log10(max(x)/emax)
+
+
+load mtlb
+y=mtlb;
+x=y(1:1000);
+t=1:1:length(x);
+predictor=[0 1];
+partion=[-3:0.1:3];
+codebook=[-3:0.1:3.1];
+encodedx=dpcmenco(x,codebook,partion,predictor);
+decodedx=dpcmdeco(encodedx,codebook,predictor);
+plot(t,x,'r',t,decodedx,'k--')
+legend('Original','Recovered')
+grid on
+xlabel('time')
+ylabel('Original and Recovered Signal')
+emax=max(abs(abs(x)-abs(decodedx')))
+SNR=20*log10(max(x)/emax)
+
+
+
+
+experiment_5:Huffmanes coding
+
+
+symbols=[1 2 3 4 5];
+p=[0.4 0.2 0.2 0.1 0.1];
+[dict,avgln]=huffmandict(symbols,p);
+hcode=huffmanenco(symbols,dict);
+dhsig=huffmandeco(hcode,dict);
+dict
+dict{1,:}
+dict{2,:}
+dict{4,:}
+hcode
+avgln
+sig=randsrc(100,1,[symbols;p]);
+comp=huffmanenco(sig,dict);
+dsig=huffmandeco(comp,dict);
+isequal(sig,dsig)
+
+
+experiment_4:single modulation technique
+code:1
+
+M=2;
+N=2000;
+x=randi([0,M-1],N,1);
+tone=8;
+Fs=100;
+y=fskmod(x,M,tone,N,Fs);
+z=fskdemod(y,M,tone,N,Fs);
+yr=awgn(y,-30);
+z=fskdemod(yr,M,tone,N,Fs);
+s=symerr(x,z)
+ber=s/N
+periodogram(real(y),[ ],512,Fs);
+
+code:2
+
+M=2;
+N=2000;
+x=randi([0,M-1],N,1);
+tone=8;
+Fs=100;
+y=pskmod(x,M,pi/M);
+z=pskdemod(y,M,pi/M);
+yr=awgn(y,-30);
+z=pskdemod(yr,M,pi/M);
+s=symerr(x,z)
+ber=s/N
+periodogram(real(y),[ ],512,Fs);
+
+code:3
+
+
+
+M=2;
+N=2000;
+x=randi([0,M-1],N,1);
+tone=8;
+Fs=100;
+y=pskmod(x,M,pi/M);
+z=pskdemod(y,M,pi/M);
+s=symerr(x,z)
+yr=awgn(y,-30);
+z=pskdemod(yr,M,tone,N,Fs);
+
+ber=s/N
+periodogram(real(y),[ ],512,Fs);
+
+
+code:4
+
+fs=1000;
+ts=1/fs;
+fd=25;
+t=0:ts:2;
+t=t';
+x=sin(2*pi*2*t);
+M_s=comm.FMModulator('SampleRate',fs,'FrequencyDeviation',fd);
+y=step(M_s,x);
+subplot(3,1,1);
+plot(t,[x real(y)])
+
+DEMOD = comm.FMDemodulator('SampleRate',fs,'FrequencyDeviation',fd);
+z=step(DEMOD,y);
+subplot(3,1,2)
+plot(t,z,'r')
+xlabel('time(s)')
+ylabel('Amplitude')
+title('Demodulated signal')
+grid on
+subplot(3,1,3)
+periodogram(real(y),[ ],512,fs);
